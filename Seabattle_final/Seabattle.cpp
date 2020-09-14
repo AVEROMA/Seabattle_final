@@ -4,12 +4,14 @@ Seabattle::Seabattle(int mode)
 {
 	srand(time(0));
 	// Подгружаем шрифт для отрисовки элементов
-	font.loadFromFile("C:\\Users\\ROMAN\\source\\repos\\Seabattle\\calibri.ttf");
+	font.loadFromFile("..\\calibri.ttf");
 	Init(mode);
 }
 
 void Seabattle::Init(int mode)
 {
+	player = mode;
+
 	// Заполняем поля игроков наугад
 	field_player1 = new int*[FIELD_SIZE];
 	field_player2 = new int*[FIELD_SIZE];
@@ -17,80 +19,61 @@ void Seabattle::Init(int mode)
 	Fill_player_fields(field_player1);
 	Fill_player_fields(field_player2);
 
+	// Для подключения по TCP
 	TcpSocket socket;
 	TcpListener listener;
-	if (mode == 2) // Режим сервера
+	std::size_t received;
+	IpAddress ip;
+	Packet get_cell;
+	Packet send_cell;
+	int cell; 
+
+	switch (mode)
 	{
-
-		// Подключение
-		IpAddress ip = "localhost";
-		std::size_t received;
-		listener.listen(2000);
-		listener.accept(socket);
-
-		// Проверочка
-		string hello;
-		socket.receive((char*)&hello, sizeof(hello), received);
-		cout << hello;
-		hello = "U TOO";
-		socket.send((char*)&hello, sizeof(hello));
-
-		Packet send_cell;
-		int cell;
-
-		// Отправка полей клиенту
-		for (int i = 0; i < FIELD_SIZE; i++)
-			for (int j = 0; j < FIELD_SIZE; j++)
-			{
-				cout << "sending << " << i << " " << j << endl;
-				cell = field_player1[i][j];
-				send_cell << cell;
-				socket.send(send_cell);
-				cout << send_cell << " HERE ";
-				send_cell.clear();
-				//Sleep(250);
-				
-				cell = field_player2[i][j];
-				send_cell << cell;
-				socket.send(send_cell);
-				cout << send_cell << " HERE ";
-				send_cell.clear();
-				//Sleep(250);
-			}
-	}
-	if (mode == 1) // Клиент
+	case 1: // Клиент
 	{
 		// Подключение
-		IpAddress ip = IpAddress::getLocalAddress(); 
-		std::size_t received;
+		ip = IpAddress::getLocalAddress();
 		socket.connect(ip, 2000);
-		
-		// Проверочка
-		string hello = "123 HELLO";
-		socket.send((char*)&hello, sizeof(hello));
-		socket.receive((char*)&hello, sizeof(hello), received);
-		cout << hello;
 
-		Packet get_cell;
-		int cell;
-		
 		for (int i = 0; i < FIELD_SIZE; i++)
 			for (int j = 0; j < FIELD_SIZE; j++)
 			{
-				cout << "receiving << " << i << " " << j << endl;
 				socket.receive(get_cell);
-				if (get_cell >> cell)
-					cout << " success " << endl;
+				get_cell >> cell;
 				field_player1[i][j] = cell;
-				cout << field_player1[i][j] << "wow" << endl;
 				get_cell.clear();
-				
+
 				socket.receive(get_cell);
 				get_cell >> cell;
 				field_player2[i][j] = cell;
-				cout << field_player2[i][j] << "wow" << endl;
 				get_cell.clear();
 			}
+	}
+	case 2: // Сервер
+	{
+
+		// Подключение
+		ip = "localhost";
+		listener.listen(2000);
+		listener.accept(socket);
+
+		for (int i = 0; i < FIELD_SIZE; i++)
+			for (int j = 0; j < FIELD_SIZE; j++)
+			{
+				cell = field_player1[i][j];
+				send_cell << cell;
+				socket.send(send_cell);
+				send_cell.clear();
+
+				cell = field_player2[i][j];
+				send_cell << cell;
+				socket.send(send_cell);
+				send_cell.clear();
+			}
+	}
+	default:
+		break;
 	}
 
 	for (int i = 0; i < 10; i++)
@@ -227,7 +210,6 @@ void Seabattle::Fill_player_fields(int **field)
 		}
 
 		ships_number[ship_length]--;
-
 	}
 }
 
@@ -248,26 +230,53 @@ void Seabattle::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	shape.setOutlineThickness(2.f);
 	shape.setOutlineColor(color);
 	shape.setFillColor(Color::Transparent);
-	
-	for (int i = 0; i < FIELD_SIZE; i++)
-	{
-		for (int j = 0; j < FIELD_SIZE; j++)
+
+	if (player == 2)
+		for (int i = 0; i < FIELD_SIZE; i++)
 		{
-			shape.setOutlineColor(color);
+			for (int j = 0; j < FIELD_SIZE; j++)
+			{
+				shape.setOutlineColor(color);
 
-			if (field_player1[i][j] == 0 || field_player1[i][j] == 1 || field_player1[i][j] == 2)
-				shape.setFillColor(Color::Transparent);
-			else if (field_player1[i][j] == 3)
-				shape.setFillColor(Color::Red);
-			else if (field_player1[i][j] == 4)
-				shape.setFillColor(Color(250, 250, 100, 80));
+				if (field_player1[i][j] == 0 || field_player1[i][j] == 2)
+					shape.setFillColor(Color::Transparent);
+				else if (field_player1[i][j] == 1)
+					shape.setFillColor(Color(128, 128, 128));
+				else if (field_player1[i][j] == 3)
+					shape.setFillColor(Color::Red);
+				else if (field_player1[i][j] == 4)
+					shape.setFillColor(Color(250, 250, 100, 80));
 
-			// Вычисление позиции плашки для отрисовки
-			Vector2f position(i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
-			shape.setPosition(position);
-			target.draw(shape, states);
+				// Вычисление позиции плашки для отрисовки
+				Vector2f position(i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
+				shape.setPosition(position);
+				target.draw(shape, states);
+			}
 		}
-	}
+	else if (player == 1)
+		for (int i = 0; i < FIELD_SIZE; i++)
+		{
+			for (int j = 0; j < FIELD_SIZE; j++)
+			{
+				shape.setOutlineColor(color);
+
+				if (field_player1[i][j] == 0 || field_player1[i][j] == 1 || field_player1[i][j] == 2)
+					shape.setFillColor(Color::Transparent);
+				else if (field_player1[i][j] == 3)
+					shape.setFillColor(Color::Red);
+				else if (field_player1[i][j] == 4)
+					shape.setFillColor(Color(250, 250, 100, 80));
+
+				// Вычисление позиции плашки для отрисовки
+				Vector2f position(i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
+				shape.setPosition(position);
+				target.draw(shape, states);
+			}
+		}
+
+	//
+	// Второе поле
+	//
 
 	color = sf::Color(57, 255, 20);
 
@@ -286,25 +295,48 @@ void Seabattle::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	shape.setOutlineColor(color);
 	shape.setFillColor(Color::Transparent);
 
-	for (int i = 0; i < FIELD_SIZE; i++)
-	{
-		for (int j = 0; j < FIELD_SIZE; j++)
+	if (player == 1)
+		for (int i = 0; i < FIELD_SIZE; i++)
 		{
-			shape.setOutlineColor(color);
+			for (int j = 0; j < FIELD_SIZE; j++)
+			{
+				shape.setOutlineColor(color);
 
-			if (field_player2[i][j] == 0 || field_player2[i][j] == 1 || field_player2[i][j] == 2)
-				shape.setFillColor(Color::Transparent);
-			else if (field_player2[i][j] == 3)
-				shape.setFillColor(Color::Red);
-			else if (field_player2[i][j] == 4)
-				shape.setFillColor(Color(250, 250, 100, 80));
+				if (field_player2[i][j] == 0 || field_player2[i][j] == 2)
+					shape.setFillColor(Color::Transparent);
+				else if (field_player2[i][j] == 1)
+					shape.setFillColor(Color(128, 128, 128));
+				else if (field_player2[i][j] == 3)
+					shape.setFillColor(Color::Red);
+				else if (field_player2[i][j] == 4)
+					shape.setFillColor(Color(250, 250, 100, 80));
 
-			// Вычисление позиции плашки для отрисовки
-			Vector2f position(DRAW_FIELD_SIZE + 10.f + i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
-			shape.setPosition(position);
-			target.draw(shape, states);
+				// Вычисление позиции плашки для отрисовки
+				Vector2f position(DRAW_FIELD_SIZE + 10.f + i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
+				shape.setPosition(position);
+				target.draw(shape, states);
+			}
 		}
-	}
+	else if(player == 2)
+		for (int i = 0; i < FIELD_SIZE; i++)
+		{
+			for (int j = 0; j < FIELD_SIZE; j++)
+			{
+				shape.setOutlineColor(color);
+
+				if (field_player2[i][j] == 0 || field_player2[i][j] == 0 || field_player2[i][j] == 2)
+					shape.setFillColor(Color::Transparent);
+				else if (field_player2[i][j] == 3)
+					shape.setFillColor(Color::Red);
+				else if (field_player2[i][j] == 4)
+					shape.setFillColor(Color(250, 250, 100, 80));
+
+				// Вычисление позиции плашки для отрисовки
+				Vector2f position(DRAW_FIELD_SIZE + 10.f + i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
+				shape.setPosition(position);
+				target.draw(shape, states);
+			}
+		}
 }
 
 bool Seabattle::Player_turn(Vector2i position, int player_turn)

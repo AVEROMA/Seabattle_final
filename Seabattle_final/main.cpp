@@ -61,7 +61,6 @@ int menu(RenderWindow& window)
 		if (Mouse::isButtonPressed(Mouse::Left))
 		{
 
-
 			if (menuNum == 1 || menuNum == 2) isMenu = false;//если нажали первую кнопку, то выходим из меню 
 			if (menuNum == 3)
 			{
@@ -87,6 +86,7 @@ int menu(RenderWindow& window)
 
 		window.display();
 	}
+	Sleep(2000);
 	return menuNum;
 }
 
@@ -99,13 +99,10 @@ int main()
 	window.setFramerateLimit(30);
 
 	Font font; 
-	font.loadFromFile("C:\\Users\\ROMAN\\source\\repos\\Seabattle\\calibri.ttf");
-
-	TcpSocket socket;
-	TcpListener listener;
+	font.loadFromFile("..\\calibri.ttf");
 
 	int player_turn = 1; // Ход игрока 1 или 2
-	int player = 1; // Игрок 1 или 2
+	int player; // Игрок 1 или 2
 	bool hit = true; // Попадание или промах
 	int mode; // Для включения клиента или сервера
 	
@@ -115,11 +112,70 @@ int main()
 	Seabattle game(mode);
 	game.setPosition(5.f, 5.f);
 
-	cout << "wassup";
+	// Для подключения по TCP
+	TcpSocket socket;
+	TcpListener listener;
+	std::size_t received;
+	IpAddress ip;
+	Packet get_packet;
+	Packet send_packet;
+	int cell;
+	Vector2i get_pos;
 
 	// Главный цикл приложения: выполняется, пока открыто окно
 	while (window.isOpen())
 	{
+
+		/*switch (mode)
+		{
+		case 2: // Сервер
+		{
+			// Подключение
+			ip = "localhost";
+			listener.listen(2000);
+			listener.accept(socket);
+
+			cout << endl << "SERVER" << endl;
+		}
+		case 1: // Клиент
+		{
+			// Подключение
+			ip = IpAddress::getLocalAddress();
+			socket.connect(ip, 2000);
+
+			cout << endl << "CLIENT" << endl;
+		}
+		default:
+			break;
+		}*/
+		if (player_turn == 2 && player == 1)
+		{
+			// Подключение
+			ip = "localhost";
+			listener.listen(2000);
+			listener.accept(socket);
+
+			socket.receive(get_packet);
+			get_packet >> get_pos.x >> get_pos.y;
+
+			hit = game.Player_turn(get_pos, player_turn);
+			if (!hit) // Если игрок попал, он делает еще один выстрел
+				player_turn = 2;
+		}
+		else if (player_turn == 1 && player == 2)
+		{
+			// Подключение
+			ip = IpAddress::getLocalAddress();
+			socket.connect(ip, 2000);
+
+			socket.receive(get_packet);
+			get_packet >> get_pos.x >> get_pos.y;
+
+			hit = game.Player_turn(get_pos, player_turn);
+			if (!hit) // Если игрок попал, он делает еще один выстрел
+				player_turn = 1;
+		}
+
 		// Обрабатываем события в цикле
 		Event event;
 		while (window.pollEvent(event))
@@ -142,12 +198,25 @@ int main()
 					{
 						hit = game.Player_turn(position, player_turn); // Вызов функции выстрела, возвращает попадание или промах
 
+						ip = IpAddress::getLocalAddress();
+						socket.connect(ip, 2000);
+
+						send_packet << position.x << position.y;
+						socket.send(send_packet);
+
 						if (!hit) // Если игрок попал, он делает еще один выстрел
 							player_turn = 2; 
 					}
 					if (player_turn == 2 && position.x > 480)
 					{
 						hit = game.Player_turn(position, player_turn);
+
+						ip = "localhost";
+						listener.listen(2000);
+						listener.accept(socket);
+
+						send_packet << position.x << position.y << player_turn;
+						socket.send(send_packet);
 
 						if (!hit)
 							player_turn = 1;

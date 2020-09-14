@@ -25,6 +25,7 @@ class Seabattle : public sf::Drawable, public sf::Transformable
 protected:
 	int **field_player1; // Игровое поле 1
 	int **field_player2; // Игровое поле 2
+	int player; //Игрок 1 или 2 для отрисовки своего поля
 	sf::Font font;
 public:
 	Seabattle(int);
