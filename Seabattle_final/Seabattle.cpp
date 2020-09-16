@@ -339,20 +339,9 @@ void Seabattle::draw(sf::RenderTarget& target, sf::RenderStates states) const
 		}
 }
 
-bool Seabattle::Player_turn(Vector2i position, int player_turn)
+bool Seabattle::Player_turn(int x, int y, int player_turn)
 {
-	int add_position; //  орректировка координаты при вычислении номера клетки
 	bool hit = false; // ѕопадание или промах
-
-	if (player_turn == 1) // ≈сли поле второго игрока, то добавить смещение пол€ от начала окна
-		add_position = 0;
-	else
-		add_position = DRAW_FIELD_SIZE + 10;
-
-	// ќпределение координат клетки
-	int x = (position.x - add_position) / (CELL_SIZE + 1);
-	int y = position.y / (CELL_SIZE + 1);
-	std::cout << position.x << " " << position.y << " " << std::endl;
 
 	if (player_turn == 1) // ≈сли стрел€ет первый игрок
 	{
@@ -370,7 +359,7 @@ bool Seabattle::Player_turn(Vector2i position, int player_turn)
 				field_player1[x][y] = 4;
 		}
 	}
-	else if (position.x > DRAW_FIELD_SIZE + 10) // ≈сли стрел€ет второй игрок и по нужному полю
+	else //if (position.x > DRAW_FIELD_SIZE + 10) // ≈сли стрел€ет второй игрок и по нужному полю
 	{
 		if ((x >= 0 && x <= 9) && (y >= 0 && y <= 9))
 		{

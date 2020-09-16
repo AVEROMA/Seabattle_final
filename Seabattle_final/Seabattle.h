@@ -31,7 +31,7 @@ public:
 	Seabattle(int);
 	void Init(int);
 	void Fill_player_fields(int**);
-	bool Player_turn(Vector2i, int);
+	bool Player_turn(int, int, int);
 public:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

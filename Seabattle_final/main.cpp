@@ -101,13 +101,15 @@ int main()
 	Font font; 
 	font.loadFromFile("..\\calibri.ttf");
 
-	int player_turn = 1; // Ход игрока 1 или 2
+	int player_turn = 2; // Ход игрока 1 или 2
 	int player; // Игрок 1 или 2
 	bool hit = true; // Попадание или промах
 	int mode; // Для включения клиента или сервера
 	
 	mode = menu(window);
 	player = mode;
+
+	Sleep(2000);
 
 	Seabattle game(mode);
 	game.setPosition(5.f, 5.f);
@@ -122,56 +124,51 @@ int main()
 	int cell;
 	Vector2i get_pos;
 
+	if (player == 1)
+	{
+		cout << endl << "client" << endl;
+		window.setTitle("client");
+		// Подключение
+		ip = IpAddress::getLocalAddress();
+		socket.connect(ip, 2000);
+	}
+	else if (player == 2)
+	{
+		cout << endl << "server" << endl;
+		window.setTitle("server");
+		// Подключение
+		ip = "localhost";
+		listener.listen(2000);
+		listener.accept(socket);
+	}
+	
 	// Главный цикл приложения: выполняется, пока открыто окно
 	while (window.isOpen())
 	{
 
-		/*switch (mode)
+		if (player == 2 && player_turn == 1)
 		{
-		case 2: // Сервер
-		{
-			// Подключение
-			ip = "localhost";
-			listener.listen(2000);
-			listener.accept(socket);
-
-			cout << endl << "SERVER" << endl;
-		}
-		case 1: // Клиент
-		{
-			// Подключение
-			ip = IpAddress::getLocalAddress();
-			socket.connect(ip, 2000);
-
-			cout << endl << "CLIENT" << endl;
-		}
-		default:
-			break;
-		}*/
-		if (player_turn == 2 && player == 1)
-		{
-			// Подключение
-			ip = "localhost";
-			listener.listen(2000);
-			listener.accept(socket);
-
+			int x, y;
 			socket.receive(get_packet);
-			get_packet >> get_pos.x >> get_pos.y;
+			get_packet >> x >> y;
+			get_packet.clear();
 
-			hit = game.Player_turn(get_pos, player_turn);
+			cout << player << " 21SHOOT " << player_turn << " x:" << x << "y:" << y << endl;
+
+			hit = game.Player_turn(x, y, player_turn);
 			if (!hit) // Если игрок попал, он делает еще один выстрел
 				player_turn = 2;
 		}
-		else if (player_turn == 1 && player == 2)
+		else if (player == 1 && player_turn == 2)
 		{
-			// Подключение
-			ip = IpAddress::getLocalAddress();
-			socket.connect(ip, 2000);
-
+			int x, y;
 			socket.receive(get_packet);
-			get_packet >> get_pos.x >> get_pos.y;
+			get_packet >> x >> y;
+			get_packet.clear();
 
-			hit = game.Player_turn(get_pos, player_turn);
+			cout << player << " 12SHOOT " << player_turn << " x:" << x << "y:" << y << endl;
+
+			hit = game.Player_turn(x, y, player_turn);
 			if (!hit) // Если игрок попал, он делает еще один выстрел
 				player_turn = 1;
 		}
@@ -194,29 +191,42 @@ int main()
 				{
 					Vector2i position = Mouse::getPosition(window); 
 					
-					if (player_turn == 1 && position.x < 470) // Ход первого игрока и выстрел по его полю?
+					cout << player << " CHECK " << player_turn << " " << position.x << " " << position.y << endl;
+
+					int add_position;
+					if (player_turn == 1) // Если поле второго игрока, то добавить смещение поля от начала окна
+						add_position = 0;
+					else
+						add_position = DRAW_FIELD_SIZE + 10;
+
+					// Определение координат клетки
+					int x = (position.x - add_position) / (CELL_SIZE + 1);
+					int y = position.y / (CELL_SIZE + 1);
+
+					cout << player << " CHECK2 " << player_turn << " " << x << " " << y << endl;
+
+					if (player_turn == 1 && player == 1 && position.x < 470) // Ход первого игрока и выстрел по его полю?
 					{
-						hit = game.Player_turn(position, player_turn); // Вызов функции выстрела, возвращает попадание или промах
+						hit = game.Player_turn(x, y, player_turn); // Вызов функции выстрела, возвращает попадание или промах
 
-						ip = IpAddress::getLocalAddress();
-						socket.connect(ip, 2000);
+						cout << endl << " shooting " << endl;
 
-						send_packet << position.x << position.y;
+						send_packet << x << y;
 						socket.send(send_packet);
+						send_packet.clear();
 
 						if (!hit) // Если игрок попал, он делает еще один выстрел
 							player_turn = 2; 
 					}
-					if (player_turn == 2 && position.x > 480)
+					if (player_turn == 2 && player == 2 && position.x > 480)
 					{
-						hit = game.Player_turn(position, player_turn);
+						hit = game.Player_turn(x, y, player_turn);
 
-						ip = "localhost";
-						listener.listen(2000);
-						listener.accept(socket);
+						cout << endl << " shooting " << endl;
 
-						send_packet << position.x << position.y << player_turn;
+						send_packet << x << y;
 						socket.send(send_packet);
+						send_packet.clear();
 
 						if (!hit)
 							player_turn = 1;

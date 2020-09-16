@@ -1,8 +1,4 @@
-﻿  main.cpp
-e:\github_nstu\sea_battle\seabattle_final\main.cpp(29): warning C4305: 'argument': truncation from 'double' to 'float'
-e:\github_nstu\sea_battle\seabattle_final\main.cpp(30): warning C4305: 'argument': truncation from 'double' to 'float'
-e:\github_nstu\sea_battle\seabattle_final\main.cpp(31): warning C4305: 'argument': truncation from 'double' to 'float'
-e:\github_nstu\sea_battle\seabattle_final\main.cpp(32): warning C4305: 'argument': truncation from 'double' to 'float'
-e:\github_nstu\sea_battle\seabattle_final\main.cpp(122): warning C4101: 'cell': unreferenced local variable
-e:\github_nstu\sea_battle\seabattle_final\main.cpp(118): warning C4101: 'received': unreferenced local variable
+﻿  Seabattle.cpp
+e:\github_nstu\sea_battle\seabattle_final\seabattle.cpp(5): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+e:\github_nstu\sea_battle\seabattle_final\seabattle.cpp(25): warning C4101: 'received': unreferenced local variable
   Seabattle_final.vcxproj -> E:\Github_nstu\Sea_Battle\Debug\Seabattle_final.exe
