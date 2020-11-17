@@ -13,6 +13,7 @@ using namespace std;
 const int FIELD_SIZE = 10; 
 const int FIELD_SQUARE = FIELD_SIZE * FIELD_SIZE;
 const int SHIPS_NUMBER = 10;
+const int POINTS_FOR_WIN = 20;
 
 // Для отрисовки
 const int DRAW_FIELD_SIZE = 460;
@@ -26,6 +27,8 @@ protected:
 	int **field_player1; // Игровое поле 1
 	int **field_player2; // Игровое поле 2
 	int player; //Игрок 1 или 2 для отрисовки своего поля
+	int pl1_hits = 0; // Количество попаданий игрока 1
+	int pl2_hits = 0; // Количество попаданий игрока 2
 	sf::Font font;
 public:
 	Seabattle(int);

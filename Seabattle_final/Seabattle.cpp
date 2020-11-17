@@ -13,8 +13,8 @@ void Seabattle::Init(int mode)
 	player = mode;
 
 	// Заполняем поля игроков наугад
-	field_player1 = new int*[FIELD_SIZE];
-	field_player2 = new int*[FIELD_SIZE];
+	field_player1 = new int* [FIELD_SIZE];
+	field_player2 = new int* [FIELD_SIZE];
 
 	Fill_player_fields(field_player1);
 	Fill_player_fields(field_player2);
@@ -26,7 +26,7 @@ void Seabattle::Init(int mode)
 	IpAddress ip;
 	Packet get_cell;
 	Packet send_cell;
-	int cell; 
+	int cell;
 
 	switch (mode)
 	{
@@ -93,7 +93,7 @@ void Seabattle::Init(int mode)
 	}
 }
 
-void Seabattle::Fill_player_fields(int **field)
+void Seabattle::Fill_player_fields(int** field)
 {
 
 	for (int i = 0; i < FIELD_SIZE; i++) // установка пустого поля - двумерный массив нулей
@@ -231,112 +231,146 @@ void Seabattle::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	shape.setOutlineColor(color);
 	shape.setFillColor(Color::Transparent);
 
-	if (player == 2)
-		for (int i = 0; i < FIELD_SIZE; i++)
-		{
-			for (int j = 0; j < FIELD_SIZE; j++)
-			{
-				shape.setOutlineColor(color);
-
-				if (field_player1[i][j] == 0 || field_player1[i][j] == 2)
-					shape.setFillColor(Color::Transparent);
-				else if (field_player1[i][j] == 1)
-					shape.setFillColor(Color(128, 128, 128));
-				else if (field_player1[i][j] == 3)
-					shape.setFillColor(Color::Red);
-				else if (field_player1[i][j] == 4)
-					shape.setFillColor(Color(250, 250, 100, 80));
-
-				// Вычисление позиции плашки для отрисовки
-				Vector2f position(i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
-				shape.setPosition(position);
-				target.draw(shape, states);
-			}
-		}
-	else if (player == 1)
-		for (int i = 0; i < FIELD_SIZE; i++)
-		{
-			for (int j = 0; j < FIELD_SIZE; j++)
-			{
-				shape.setOutlineColor(color);
-
-				if (field_player1[i][j] == 0 || field_player1[i][j] == 1 || field_player1[i][j] == 2)
-					shape.setFillColor(Color::Transparent);
-				else if (field_player1[i][j] == 3)
-					shape.setFillColor(Color::Red);
-				else if (field_player1[i][j] == 4)
-					shape.setFillColor(Color(250, 250, 100, 80));
-
-				// Вычисление позиции плашки для отрисовки
-				Vector2f position(i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
-				shape.setPosition(position);
-				target.draw(shape, states);
-			}
-		}
-
-	//
-	// Второе поле
-	//
-
-	color = sf::Color(57, 255, 20);
-
-	// Рисуем рамку игрового поля
-	//sf::RectangleShape shape(sf::Vector2f(DRAW_FIELD_SIZE, DRAW_FIELD_SIZE));
-	shape.setSize(sf::Vector2f(DRAW_FIELD_SIZE, DRAW_FIELD_SIZE));
-	shape.setOutlineThickness(2.f);
-	shape.setOutlineColor(color);
-	shape.setFillColor(sf::Color::Transparent);
-	shape.setPosition(sf::Vector2f(DRAW_FIELD_SIZE + 10.f, 0));
-	target.draw(shape, states);
-
-	// Подготавливаем рамку для отрисовки всех плашек
-	shape.setSize(sf::Vector2f(CELL_SIZE - 2, CELL_SIZE - 2));
-	shape.setOutlineThickness(2.f);
-	shape.setOutlineColor(color);
-	shape.setFillColor(Color::Transparent);
+	sf::Text text("", font, 25);
+	text.setFillColor(Color(200, 100, 200));
+	text.setPosition(100, 100);
 
 	if (player == 1)
-		for (int i = 0; i < FIELD_SIZE; i++)
+	{
+		if (pl1_hits == POINTS_FOR_WIN)
 		{
-			for (int j = 0; j < FIELD_SIZE; j++)
-			{
-				shape.setOutlineColor(color);
-
-				if (field_player2[i][j] == 0 || field_player2[i][j] == 2)
-					shape.setFillColor(Color::Transparent);
-				else if (field_player2[i][j] == 1)
-					shape.setFillColor(Color(128, 128, 128));
-				else if (field_player2[i][j] == 3)
-					shape.setFillColor(Color::Red);
-				else if (field_player2[i][j] == 4)
-					shape.setFillColor(Color(250, 250, 100, 80));
-
-				// Вычисление позиции плашки для отрисовки
-				Vector2f position(DRAW_FIELD_SIZE + 10.f + i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
-				shape.setPosition(position);
-				target.draw(shape, states);
-			}
+			text.setString("YOU WIN");
+			target.draw(text, states);
 		}
-	else if(player == 2)
-		for (int i = 0; i < FIELD_SIZE; i++)
+		else if (pl2_hits == POINTS_FOR_WIN)
 		{
-			for (int j = 0; j < FIELD_SIZE; j++)
-			{
-				shape.setOutlineColor(color);
-
-				if (field_player2[i][j] == 0 || field_player2[i][j] == 0 || field_player2[i][j] == 2)
-					shape.setFillColor(Color::Transparent);
-				else if (field_player2[i][j] == 3)
-					shape.setFillColor(Color::Red);
-				else if (field_player2[i][j] == 4)
-					shape.setFillColor(Color(250, 250, 100, 80));
-
-				// Вычисление позиции плашки для отрисовки
-				Vector2f position(DRAW_FIELD_SIZE + 10.f + i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
-				shape.setPosition(position);
-				target.draw(shape, states);
-			}
+			text.setString("YOU LOSER HAHA");
+			target.draw(text, states);
 		}
+	}
+	if (player == 2)
+	{
+		if (pl2_hits == POINTS_FOR_WIN)
+		{
+			text.setString("YOU WIN");
+			target.draw(text, states);
+		}
+		else if (pl1_hits == POINTS_FOR_WIN)
+		{
+			text.setString("YOU LOSER HAHA");
+			target.draw(text, states);
+		}
+	}
+
+	if (pl1_hits < POINTS_FOR_WIN && pl2_hits < POINTS_FOR_WIN)
+	{
+		if (player == 2)
+			for (int i = 0; i < FIELD_SIZE; i++)
+			{
+				for (int j = 0; j < FIELD_SIZE; j++)
+				{
+					shape.setOutlineColor(color);
+
+					if (field_player1[i][j] == 0 || field_player1[i][j] == 2)
+						shape.setFillColor(Color::Transparent);
+					else if (field_player1[i][j] == 1)
+						shape.setFillColor(Color(128, 128, 128));
+					else if (field_player1[i][j] == 3)
+						shape.setFillColor(Color::Red);
+					else if (field_player1[i][j] == 4)
+						shape.setFillColor(Color(250, 250, 100, 80));
+
+					// Вычисление позиции плашки для отрисовки
+					Vector2f position(i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
+					shape.setPosition(position);
+					target.draw(shape, states);
+				}
+			}
+		else if (player == 1)
+			for (int i = 0; i < FIELD_SIZE; i++)
+			{
+				for (int j = 0; j < FIELD_SIZE; j++)
+				{
+					shape.setOutlineColor(color);
+
+					if (field_player1[i][j] == 0 || field_player1[i][j] == 1 || field_player1[i][j] == 2)
+						shape.setFillColor(Color::Transparent);
+					else if (field_player1[i][j] == 3)
+						shape.setFillColor(Color::Red);
+					else if (field_player1[i][j] == 4)
+						shape.setFillColor(Color(250, 250, 100, 80));
+
+					// Вычисление позиции плашки для отрисовки
+					Vector2f position(i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
+					shape.setPosition(position);
+					target.draw(shape, states);
+				}
+			}
+
+		//
+		// Второе поле
+		//
+
+		color = sf::Color(57, 255, 20);
+
+		// Рисуем рамку игрового поля
+		//sf::RectangleShape shape(sf::Vector2f(DRAW_FIELD_SIZE, DRAW_FIELD_SIZE));
+		shape.setSize(sf::Vector2f(DRAW_FIELD_SIZE, DRAW_FIELD_SIZE));
+		shape.setOutlineThickness(2.f);
+		shape.setOutlineColor(color);
+		shape.setFillColor(sf::Color::Transparent);
+		shape.setPosition(sf::Vector2f(DRAW_FIELD_SIZE + 10.f, 0));
+		target.draw(shape, states);
+
+		// Подготавливаем рамку для отрисовки всех плашек
+		shape.setSize(sf::Vector2f(CELL_SIZE - 2, CELL_SIZE - 2));
+		shape.setOutlineThickness(2.f);
+		shape.setOutlineColor(color);
+		shape.setFillColor(Color::Transparent);
+
+		if (player == 1)
+			for (int i = 0; i < FIELD_SIZE; i++)
+			{
+				for (int j = 0; j < FIELD_SIZE; j++)
+				{
+					shape.setOutlineColor(color);
+
+					if (field_player2[i][j] == 0 || field_player2[i][j] == 2)
+						shape.setFillColor(Color::Transparent);
+					else if (field_player2[i][j] == 1)
+						shape.setFillColor(Color(128, 128, 128));
+					else if (field_player2[i][j] == 3)
+						shape.setFillColor(Color::Red);
+					else if (field_player2[i][j] == 4)
+						shape.setFillColor(Color(250, 250, 100, 80));
+
+					// Вычисление позиции плашки для отрисовки
+					Vector2f position(DRAW_FIELD_SIZE + 10.f + i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
+					shape.setPosition(position);
+					target.draw(shape, states);
+				}
+			}
+		else if (player == 2)
+			for (int i = 0; i < FIELD_SIZE; i++)
+			{
+				for (int j = 0; j < FIELD_SIZE; j++)
+				{
+					shape.setOutlineColor(color);
+
+					if (field_player2[i][j] == 0 || field_player2[i][j] == 1 || field_player2[i][j] == 2)
+						shape.setFillColor(Color::Transparent);
+					else if (field_player2[i][j] == 3)
+						shape.setFillColor(Color::Red);
+					else if (field_player2[i][j] == 4)
+						shape.setFillColor(Color(250, 250, 100, 80));
+
+					// Вычисление позиции плашки для отрисовки
+					Vector2f position(DRAW_FIELD_SIZE + 10.f + i * CELL_SIZE + 5.f, j * CELL_SIZE + 5.f);
+					shape.setPosition(position);
+					target.draw(shape, states);
+				}
+			}
+	}
 }
 
 bool Seabattle::Player_turn(int x, int y, int player_turn)
@@ -354,6 +388,7 @@ bool Seabattle::Player_turn(int x, int y, int player_turn)
 			{
 				field_player1[x][y] = 3;
 				hit = true;
+				pl1_hits++;
 			}
 			else if (field_player1[x][y] == 0 || field_player1[x][y] == 2)
 				field_player1[x][y] = 4;
@@ -369,6 +404,7 @@ bool Seabattle::Player_turn(int x, int y, int player_turn)
 			if (field_player2[x][y] == 1)
 			{
 				field_player2[x][y] = 3;
+				pl2_hits++;
 				hit = true;
 			}
 			else if (field_player2[x][y] == 0 || field_player2[x][y] == 2)

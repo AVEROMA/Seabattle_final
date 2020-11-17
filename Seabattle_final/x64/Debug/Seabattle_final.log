@@ -1,0 +1,8 @@
+﻿  main.cpp
+B:\nstu\Seabattle_final\Seabattle_final\main.cpp(29,34): warning C4305: аргумент: усечение из "double" в "float"
+B:\nstu\Seabattle_final\Seabattle_final\main.cpp(30,28): warning C4305: аргумент: усечение из "double" в "float"
+B:\nstu\Seabattle_final\Seabattle_final\main.cpp(31,29): warning C4305: аргумент: усечение из "double" в "float"
+B:\nstu\Seabattle_final\Seabattle_final\main.cpp(32,26): warning C4305: аргумент: усечение из "double" в "float"
+B:\nstu\Seabattle_final\Seabattle_final\main.cpp(126,6): warning C4101: cell: неиспользованная локальная переменная
+B:\nstu\Seabattle_final\Seabattle_final\main.cpp(122,14): warning C4101: received: неиспользованная локальная переменная
+  Seabattle_final.vcxproj -> B:\nstu\Seabattle_final\x64\Debug\Seabattle_final.exe

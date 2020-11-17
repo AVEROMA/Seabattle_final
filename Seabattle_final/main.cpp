@@ -95,7 +95,7 @@ int main()
 {
 	setlocale(LC_ALL, "Russian");
 	// Создаем окно размером 940 на 470 и частотой обновления 30 кадров в секунду
-	RenderWindow window(VideoMode(940, 470), "ITSA FUCKIN SEABATTLE YOU MOTHERFUCKER");
+	RenderWindow window(VideoMode(940, 470), "SEABATTLE");
 	window.setFramerateLimit(30);
 
 	Font font; 
@@ -103,6 +103,8 @@ int main()
 
 	int player_turn = 2; // Ход игрока 1 или 2
 	int player; // Игрок 1 или 2
+	int pl1_hits = 0; // Количество попаданий игрока 1
+	int pl2_hits = 0; // Количество попаданий игрока 2
 	bool hit = true; // Попадание или промах
 	int mode; // Для включения клиента или сервера
 	
@@ -128,7 +130,7 @@ int main()
 	{
 		cout << endl << "client" << endl;
 		window.setTitle("client");
-		// Подключение
+		// Подключениеtudio releea
 		ip = IpAddress::getLocalAddress();
 		socket.connect(ip, 2000);
 	}
@@ -158,6 +160,8 @@ int main()
 			hit = game.Player_turn(x, y, player_turn);
 			if (!hit) // Если игрок попал, он делает еще один выстрел
 				player_turn = 2;
+			else
+				pl1_hits++;
 		}
 		else if (player == 1 && player_turn == 2)
 		{
@@ -169,8 +173,10 @@ int main()
 			cout << player << " 12SHOOT " << player_turn << " x:" << x << "y:" << y << endl;
 
 			hit = game.Player_turn(x, y, player_turn);
-			if (!hit) // Если игрок попал, он делает еще один выстрел
+			if (!hit) // Если игрок промахнулся, то ход переходит другому
 				player_turn = 1;
+			else
+				pl2_hits++;
 		}
 
 		// Обрабатываем события в цикле
@@ -215,8 +221,10 @@ int main()
 						socket.send(send_packet);
 						send_packet.clear();
 
-						if (!hit) // Если игрок попал, он делает еще один выстрел
-							player_turn = 2; 
+						if (!hit) // Если игрок промахнулся, то ход переходит другому
+							player_turn = 2;
+						else
+							pl1_hits++;
 					}
 					if (player_turn == 2 && player == 2 && position.x > 480)
 					{
@@ -230,6 +238,8 @@ int main()
 
 						if (!hit)
 							player_turn = 1;
+						else
+							pl2_hits++;
 					}
 				}
 			}

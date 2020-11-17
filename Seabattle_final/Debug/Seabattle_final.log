@@ -1,4 +1,1 @@
-﻿  Seabattle.cpp
-e:\github_nstu\sea_battle\seabattle_final\seabattle.cpp(5): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-e:\github_nstu\sea_battle\seabattle_final\seabattle.cpp(25): warning C4101: 'received': unreferenced local variable
-  Seabattle_final.vcxproj -> E:\Github_nstu\Sea_Battle\Debug\Seabattle_final.exe
+﻿sfml-network-d.lib(sfml-network-d-2.dll) : fatal error LNK1112: тип компьютера модуля "x64" конфликтует с типом целевого компьютера "x86"
